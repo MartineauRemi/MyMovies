@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react'
-import {View, StyleSheet, TextInput, FlatList, ActivityIndicator} from "react-native"
-import FilmItem from "./FilmItem"
+import {View, StyleSheet, TextInput, ActivityIndicator} from "react-native"
 import {getFilmsFromApiWithSearchedText} from "../API/TMDBApi"
+import {useSelector} from "react-redux"
+import FilmList from './FilmList'
 
 var search = "";
 var page = 0;
@@ -11,7 +12,10 @@ export default function Search({navigation}) {
     const [value, setValue] = useState("");
     const [films, setFilms] = useState([]);
     const [loading, setLoading] = useState(false)
+
+    const favoriteFilms = useSelector((state) => state.favoriteFilms)
     
+    //fat arrow for data binding
     const loadFilms = () => {
         if(search.length > 0){
             if(page === 0 || page < maxPages){
@@ -47,12 +51,13 @@ export default function Search({navigation}) {
                 onChangeText={(value) => {setValue(value)}}
                 onSubmitEditing={searchFilms}
             />
-            <FlatList
-                data= {films}
-                keyExtractor={(film) => film.id.toString()}
-                renderItem = {({item}) => <FilmItem film={item} displayFilmDetail={displayFilmDetail}/>}
-                onEndReachedThreshold={0.5}
-                onEndReached={loadFilms}
+            <FilmList
+                films={films}
+                favoriteFilms={favoriteFilms}
+                loadFilms={loadFilms}
+                page={page}
+                maxPages={maxPages}
+                displayFilmDetail={displayFilmDetail}
             />
             {loading ? 
             (
@@ -75,7 +80,9 @@ const styles = StyleSheet.create({
       marginTop: 1,
       height: 50,
       borderColor: 'black',
-      borderWidth: 1,
+      borderWidth: 2,
+      backgroundColor: "#eee",
+      borderRadius: 3,
       paddingLeft: 5
     },
     loading_container:{

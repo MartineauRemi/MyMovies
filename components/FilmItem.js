@@ -2,14 +2,25 @@ import React from 'react'
 import {View, Text, Image, StyleSheet, TouchableOpacity} from "react-native"
 import { getImageFromApi } from '../API/TMDBApi';
 
-export default function FilmItem({film, displayFilmDetail}) {
+export default function FilmItem({film, displayFilmDetail, isFilmFavorite}) {
     const {id, title, vote_average, overview, release_date, poster_path} = film;
+
+    function displayFavoriteImage(){
+        if(isFilmFavorite){
+            return (
+                <Image
+                    style={styles.favorite_image}
+                    source={require("../images/ic_favorite.png")}/>
+            )
+        }
+    }
 
     return (
         <TouchableOpacity style={styles.main_container} onPress={() => displayFilmDetail(id)}>
             <Image source={{uri: getImageFromApi(poster_path)}} style={styles.image}/>
             <View style={styles.infos_container}>
                 <View style={styles.header}>
+                    {displayFavoriteImage()}
                     <Text style={styles.title}>{title}</Text>
                     <Text style={styles.vote_average}>{vote_average}</Text>
                 </View>
@@ -37,6 +48,7 @@ const styles = StyleSheet.create({
         width: 120,
         height: 180,
         margin: 5,
+        backgroundColor: "gray"
     },
     infos_container:{
         flex: 1,
@@ -72,6 +84,10 @@ const styles = StyleSheet.create({
         textAlign: "right",
         fontSize: 14
     },
-
-
+    favorite_image:{
+        width: 25,
+        height: 25,
+        marginRight: 5,
+        marginTop: 5
+    }
 })

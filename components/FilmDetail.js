@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, ActivityIndicator, ScrollView, Text, Image } from 'react-native'
+import { StyleSheet, View, ActivityIndicator, ScrollView, Text, Image, Button, TouchableOpacity } from 'react-native'
 import {getFilmDetailFromApi, getImageFromApi} from "../API/TMDBApi"
-import moment from 'moment'
+import moment, { relativeTimeRounding } from 'moment'
 import numeral from 'numeral'
+import {useSelector, useDispatch} from "react-redux"
+
 
 export default function FilmDetail({route}) {
   const {id} = route.params;
   const [loading, setLoading] = useState(true)
   const [film, setFilm] = useState(undefined)
+
+  const dispatch = useDispatch()
+  const favoriteFilms = useSelector((state) => state.favoriteFilms)
 
   function displayLoading(){
     if(loading){
@@ -28,6 +33,11 @@ export default function FilmDetail({route}) {
         <ScrollView style={styles.scrollview_container}>
           <Image source={{uri: getImageFromApi(film.backdrop_path)}} style={styles.image}/>
           <Text style={styles.title_text}>{film.title}</Text>
+          <TouchableOpacity
+            style={styles.favorite_container}
+            onPress={(() => dispatch({type:"TOGGLE_FAVORITE",value: film}))}>
+              {displayFavoriteImage()}
+          </TouchableOpacity>
           <Text style={styles.description_text}>{film.overview}</Text>
           <Text style={styles.default_text}>Sorti le {moment(new Date(film.release_date)).format('DD/MM/YYYY')}</Text>
           <Text style={styles.default_text}>Note : {film.vote_average} / 10</Text>
@@ -49,6 +59,19 @@ export default function FilmDetail({route}) {
   useEffect(() => {
       setLoading(false)
   }, [film])
+
+
+  function displayFavoriteImage(){
+    var source = require("../images/ic_favorite_border.png")
+    if(favoriteFilms.findIndex((item) => item.id === film.id) !== -1)
+      source = require("../images/ic_favorite.png")
+    return (
+      <Image
+        style={styles.favorite_image}
+        source={source}
+      />
+    )
+  }
 
   return (
     <View style={styles.main_container}>
@@ -99,5 +122,12 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
     marginTop: 5,
+  },
+  favorite_container: {
+    alignItems: 'center',
+  },
+  favorite_image: {
+    width: 40,
+    height: 40
   }
 })

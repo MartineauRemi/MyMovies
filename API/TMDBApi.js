@@ -1,5 +1,3 @@
-import React from 'react'
-
 //enter your personnal API token here 
 const API_TOKEN = "";
 
